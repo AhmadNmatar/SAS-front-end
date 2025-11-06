@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Attendance</title>
+
+ <style>
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="page">
+    <!-- Attendance Table -->
+    <div class="table-wrap">
+      <table aria-label="Attendance table">
+        <thead>
+          <tr>
+            <th scope="col">name</th>
+            <th scope="col">email</th>
+            <th scope="col">date</th>
+            <th scope="col">time</th>
+            <th scope="col">status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Empty rows for the look; replace with your real data -->
+          <tr>
+            <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Start Panel -->
+    <section class="control-panel">
+      <button class="wrap" type="button" id="start">START</button>
+    </section>
+  </div>
+
+  <!-- Optional: hook up the START button -->
+  <script>
+    document.getElementById('start').addEventListener('click', () => {
+      // TODO: call your Flask endpoint via fetch, e.g. /attendance/start
+      console.log('Start clicked');
+    });
+  </script>
+</body>
+{% endblock %}

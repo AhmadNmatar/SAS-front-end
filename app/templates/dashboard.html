@@ -1,0 +1,24 @@
+
+
+{% extends 'base.html'%}
+
+{%block head %}
+<title> dashboard</title>
+{%endblock%}
+
+
+
+{%block body%}
+
+<div class="dashboard ">
+  <div class="main">
+  <button class="wrap" onclick="window.location.href='{{ url_for('attendance') }}'">
+    Take Attendance
+  </button>
+  
+  <button class="wrap" onclick="window.location.href='{{ url_for('enrollment') }}'">
+    Enroll
+  </button>
+  </div>
+</div>
+{% endblock%}

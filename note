@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Attendance</title>
+{% endblock %}
+
+{% block body %}
+<div class="attendance main">
+    <div class="table-section">
+        <div class="table">
+            <div class="table_component">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>name</th>
+                            <th>email</th>
+                            <th>date</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Alfreds Futterkiste</td>
+                        <td>Maria Anders</td>
+                        <td>Germany</td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="button-section">
+        <div class="attendance_button">
+            <button class="wrap" onclick="">
+                Start
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

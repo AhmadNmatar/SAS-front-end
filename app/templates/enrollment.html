@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+
+{%block head %}
+<title> enrollment</title>
+{%endblock%}
+
+
+
+{%block body%}
+
+<div class="main">
+
+  
+  <button onclick="window.location.href='{{ url_for('enrollment') }}'">
+    Enroll
+  </button>
+</div>
+{% endblock%}

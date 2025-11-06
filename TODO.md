@@ -1,0 +1,2 @@
+- [x] Correct the HTML structure in attendance.html: Fix the button tag syntax error and restructure the container into two sections (table-section and button-section).
+- [x] Update style.css: Adjust .attendance to full viewport height, and style the two sections to take top and bottom halves with proper centering.
