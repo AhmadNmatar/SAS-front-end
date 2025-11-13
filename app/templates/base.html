@@ -11,10 +11,12 @@
 <body>
     <nav>
       <div>
-        <strong>SAS</strong>
+       <a href="{{ url_for('home') }}"><strong>S.A.S</strong></a> 
       </div>
       <div>
-        <a href="">Logout</a>
+        {% if session.get('admin') %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif%}
       </div>
     </nav>
 

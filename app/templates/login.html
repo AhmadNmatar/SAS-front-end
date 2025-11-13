@@ -5,33 +5,24 @@
 {%block head %}
 <title> Smart Attendance System</title>
 {%endblock%}
-
-
-
+login
 {%block body%}
 
  <div class=" login">
     <div class="main">
         <h3>Enter your login credentials</h3>
-        <form action="">
-            <label for="first">
-                Username:
-            </label>
-            <input type="text" id="first" name="first" 
-                placeholder="Enter your Username" required>
+        
+            <form method="post" action="{{ url_for('login') }}">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your Username" required>
 
-            <label for="password">
-                Password:
-            </label>
-            <input type="password" id="password" name="password" 
-                placeholder="Enter your Password" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your Password" required>
 
             <div class="wrap">
-                <button type="submit">
-                    login
-                </button>
+                <button type="submit">Login</button>
             </div>
-        </form>
+            </form>
         </div>
     </div>
 {% endblock%}

@@ -2,46 +2,76 @@
 
 {% block head %}
 <title>Attendance</title>
-
- <style>
-  </style>
+<style>
+  .attendance { max-width: 960px; margin: 0 auto; }
+  .table-wrap { overflow-x:auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border-bottom: 1px solid #e5e5e5; padding: 8px 10px; text-align: left; }
+  th { text-transform: capitalize; font-weight: 600; }
+</style>
 {% endblock %}
 
 {% block body %}
-  <div class="page">
-    <!-- Attendance Table -->
-    <div class="table-wrap">
-      <table aria-label="Attendance table">
-        <thead>
-          <tr>
-            <th scope="col">name</th>
-            <th scope="col">email</th>
-            <th scope="col">date</th>
-            <th scope="col">time</th>
-            <th scope="col">status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Empty rows for the look; replace with your real data -->
-          <tr>
-            <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Start Panel -->
-    <section class="control-panel">
-      <button class="wrap" type="button" id="start">START</button>
-    </section>
+<div class="attendance">
+  <div class="table-wrap">
+    <table aria-label="Attendance table">
+      <thead>
+        <tr>
+          <th scope="col">name</th>
+          <th scope="col">date</th>
+          <th scope="col">status</th>
+        </tr>
+      </thead>
+      <tbody id="att-body">
+        
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <!-- Optional: hook up the START button -->
-  <script>
-    document.getElementById('start').addEventListener('click', () => {
-      // TODO: call your Flask endpoint via fetch, e.g. /attendance/start
-      console.log('Start clicked');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetchAttendance();
+   // setInterval(fetchAttendance, 100);
+});
+
+async function fetchAttendance() {
+    const backendUrl = '{{ backend_url }}';
+    const accessToken = '{{ access_token }}';
+    try {
+        const response = await fetch(`${backendUrl}/attendance/records`, {
+                          method: 'GET',
+                          headers: {
+                              'Accept': 'application/json',
+                              'Authorization': `Bearer ${accessToken}`
+                          }
+                      });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        populateTable(data);
+    } catch (error) {
+        console.error('Error fetching attendance:', error);
+        // Optionally display error in UI
+    }
+}
+
+function populateTable(attendanceList) {
+    const tbody = document.getElementById('att-body');
+    tbody.innerHTML = ''; // Clear existing rows
+
+    attendanceList.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${record.first_name } ${record.surname}</td>
+            <td>${record.date}</td>
+            <td>${record.status_type}</td>
+        `;
+        tbody.appendChild(row);
     });
-  </script>
-</body>
+}
+</script>
 {% endblock %}

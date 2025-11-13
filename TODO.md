@@ -1,2 +1,6 @@
-- [x] Correct the HTML structure in attendance.html: Fix the button tag syntax error and restructure the container into two sections (table-section and button-section).
-- [x] Update style.css: Adjust .attendance to full viewport height, and style the two sections to take top and bottom halves with proper centering.
+# TODO: Add method to attendance.html to fetch attendance list and populate table
+
+## Steps to Complete:
+- [x] Update /attendance route in __init__.py to pass access_token to template
+- [x] Add JavaScript in attendance.html to fetch attendance data on load and populate table
+- [x] Test the changes by running Flask app and accessing attendance page (Flask app started on port 5001)
