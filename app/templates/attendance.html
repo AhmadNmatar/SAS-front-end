@@ -3,11 +3,7 @@
 {% block head %}
 <title>Attendance</title>
 <style>
-  .attendance { max-width: 960px; margin: 0 auto; }
-  .table-wrap { overflow-x:auto; margin: 12px 0; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border-bottom: 1px solid #e5e5e5; padding: 8px 10px; text-align: left; }
-  th { text-transform: capitalize; font-weight: 600; }
+
 
   .control-panel { display:flex; gap: 10px; align-items:center; margin: 12px 0; }
   .wrap { padding: 10px 16px; border: 0; border-radius: 8px; background:#334; color:#fff; cursor:pointer; }
@@ -38,37 +34,35 @@
     </table>
   </div>
 
-    <!-- Controls -->
   <div class="control-panel">
     <button id="start-btn" class="wrap">Start</button>
     <button id="stop-btn" class="wrap secondary" disabled>Stop</button>
     <span id="status" class="status"></span>
   </div>
 
-  <!-- Camera stage -->
   <div id="stage">
     <video id="cam" autoplay muted playsinline></video>
     <canvas id="overlay"></canvas>
   </div>
 
 </div>
-
 <script>
-function addAttendanceRow(attendance) {
+function populateTable(attendanceList) {
     const tbody = document.getElementById('att-body');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${attendance.first_name} ${attendance.surname}</td>
-        <td>${attendance.date}</td>
-        <td>${attendance.status}</td>
-    `;
-    tbody.appendChild(row);
+    tbody.innerHTML = ''; // Clear existing rows
+
+    attendanceList.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${record.first_name} ${record.last_name}</td>
+            <td>${record.date}</td>
+            <td>${record.status_type}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
-// ===== Camera + WebSocket streaming logic =====
-
-
-const WS_PATH = "/face/take_attendace";
+const STREAM_URL = "http://localhost:8000/face/take_attendance"; 
 
 const startBtn = document.getElementById('start-btn');
 const stopBtn  = document.getElementById('stop-btn');
@@ -78,73 +72,94 @@ const stage    = document.getElementById('stage');
 const videoEl  = document.getElementById('cam');
 const canvasEl = document.getElementById('overlay');
 
-document.addEventListener('DOMContentLoaded', function() {
-    fetchAttendance();
-    setInterval(fetchAttendance, 100);
-});
+let mediaStream = null;
+let captureInterval = null;
+let isStreaming = false;
 
-async function fetchAttendance() {
-    const backendUrl = '{{ backend_url }}';
-    const accessToken = '{{ access_token }}';
-    try {
-        const response = await fetch(`${backendUrl}/attendance/records`, {
-                          method: 'GET',
-                          headers: {
-                              'Accept': 'application/json',
-                              'Authorization': `Bearer ${accessToken}`
-                          }
-                      });
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    statusEl.textContent = "Camera not supported in this browser.";
+    return;
+  }
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    statusEl.textContent = "Requesting camera...";
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoEl.srcObject = mediaStream;
+    stage.style.display = 'block';
+
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    statusEl.textContent = "Camera started. Streaming...";
+    isStreaming = true;
+    videoEl.onloadedmetadata = () => {
+      canvasEl.width  = videoEl.videoWidth;
+      canvasEl.height = videoEl.videoHeight;
+      startStreaming();
+    };
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Failed to access camera.";
+  }
+}
+
+function stopCamera() {
+  isStreaming = false;
+  if (captureInterval) {
+    clearInterval(captureInterval);
+    captureInterval = null;
+  }
+
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream = null;
+  }
+
+  videoEl.srcObject = null;
+  stage.style.display = 'none';
+
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  statusEl.textContent = "Camera stopped.";
+}
+const attendanceList = []
+
+function startStreaming() {
+  const ctx = canvasEl.getContext('2d');
+
+  captureInterval = setInterval(() => {
+    if (!mediaStream || !isStreaming) return;
+
+    ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+
+    canvasEl.toBlob(async (blob) => {
+      if (!blob) return;
+      try {
+       const res =  await fetch(STREAM_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "image/jpeg"
+          },
+          body: blob
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
+        
+        const data = await res.json();
+        console.log("resp", data); 
+        attendanceList.push(data.attendance)
+        populateTable(attendanceList)
 
-        const data = await response.json();
-        populateTable(data);
-    } catch (error) {
-        console.error('Error fetching attendance:', error);
-        // Optionally display error in UI
-    }
+      } catch (e) {
+        console.error("Stream error:", e);
+        statusEl.textContent = "Streaming error (check backend).";
+      }
+    }, 'image/jpeg', 0.8);
+  }, 300);
 }
 
-function populateTable(attendanceList) {
-    const tbody = document.getElementById('att-body');
-    tbody.innerHTML = ''; // Clear existing rows
-
-    attendanceList.forEach(record => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.first_name } ${record.surname}</td>
-            <td>${record.date}</td>
-            <td>${record.status_type}</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-async function starTakingAttendance() {
-    const backendUrl = '{{ backend_url }}';
-    const accessToken = '{{ access_token }}';
-    try {
-        const response = await fetch(`${backendUrl}/face/start_recognition`, {
-                          method: 'post',
-                          headers: {
-                              'Accept': 'application/json',
-                             // 'Authorization': `Bearer ${accessToken}`
-                          }
-                      });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-    } catch (error) {
-        console.error('Error fetching attendance:', error);
-        // Optionally display error in UI
-    }
-}
-
-startBtn.addEventListener('click', starTakingAttendance);
+startBtn.addEventListener('click', startCamera);
+stopBtn.addEventListener('click', stopCamera);
 </script>
 {% endblock %}
