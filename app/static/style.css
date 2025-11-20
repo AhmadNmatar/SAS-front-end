@@ -1,22 +1,11 @@
 body{
     background: #f3f3f3;
-    flex-direction: column;
-    margin: 0;
 }
 
 h1 {
     color: #4CAF50;
 }
 
-label {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    text-align: left;
-    color: #555;
-    font-weight: bold;
-}
 
 input {
     display: block;
@@ -98,7 +87,7 @@ input {
 }
 /** navbar*/
 
-nav {
+.nav {
     background-color: #333;
     color: white;
     padding: 30px 20px;
@@ -112,7 +101,7 @@ nav {
     z-index: 1000;
 }
 
-nav a {
+.nav a {
     color: white;
     text-decoration: none;
     padding: 10px 10px;
@@ -120,7 +109,7 @@ nav a {
     transition: background-color 0.3s;
 }
 
-nav a:hover {
+.nav a:hover {
     background-color: #555;
 }
 
@@ -152,7 +141,7 @@ nav a:hover {
     width: 25%;
 }
 
-.attendance button {
+  .a4 button {
     padding: 15px;
     border-radius: 10px;
     margin-top: 15px;
@@ -164,26 +153,42 @@ nav a:hover {
     width: 25%;
     font-size: 16px;
 }
-.attendance{
-    padding-top: 70px;
-    max-width:1100px;
-    margin:24px auto;
-    background-color: #fff;
+
+  .attendance{
+  margin-top: 85px;
+  left: 0;
+  height: 450px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
 }
 
-/* Attendance table wrapper (light gray background like the mock) */
+  .a2{  margin-top: 10px; height: 430px; width: 50%; border-color: black; }
+  .a3{ background-color: rgb(205, 203, 203); margin-top: 10px; height: 430px; width: 50%; border-color: black; border-radius: 3%;}
+  .a4{
+  margin-top: 10px;
+  bottom: 0;
+  left:0;
+  right: 0;
+  height: 200px;
+}
+
 .table-wrap{
-    background:linear-gradient(#e5e2e2, #dedcdc);
-    border-radius:8px;
-    overflow:hidden;
-    box-shadow:0 1px 0 rgba(0,0,0,.05);
-    border:1px solid #cfcfcf;
+    background: linear-gradient(#e5e2e2, #dedcdc);
+    border-radius: 8px;
+    overflow-y: auto;        
+    overflow-x: hidden;      
+    box-shadow: 0 1px 0 rgba(0,0,0,.05);
+    border: 1px solid #cfcfcf;
+    height: 430px;          
 }
 
 table{
     width:100%;
     border-collapse:collapse;
     table-layout:fixed;
+    border-color: black;
 }
 
 thead th{
