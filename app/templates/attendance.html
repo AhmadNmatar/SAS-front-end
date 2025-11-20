@@ -62,7 +62,7 @@ function populateTable(attendanceList) {
     });
 }
 
-const STREAM_URL = "http://localhost:8000/face/take_attendance"; 
+const STREAM_URL = "http://localhost:8000/attendance/take_attendance"; 
 
 const startBtn = document.getElementById('start-btn');
 const stopBtn  = document.getElementById('stop-btn');
@@ -148,8 +148,10 @@ function startStreaming() {
         
         const data = await res.json();
         console.log("resp", data); 
-        attendanceList.push(data.attendance)
-        populateTable(attendanceList)
+        if (Object.keys(data.attendance).length != 0){
+          attendanceList.push(data.attendance)
+          populateTable(attendanceList)
+        }
 
       } catch (e) {
         console.error("Stream error:", e);

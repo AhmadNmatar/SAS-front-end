@@ -6,22 +6,18 @@ from flask import Flask, render_template, url_for, request, redirect, session, j
 from dotenv import load_dotenv
 
 def create_app():
-    # create and configure the app
     load_dotenv()
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY"),
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE="Lax",
+
     )
     BACKEND_URL= os.getenv("BACKEND_URL")
-    # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path, exist_ok=True)
     except OSError:
         pass
 
-        # simple login-required decorator
     def login_required(view):
         @functools.wraps(view)
         def wrapped_view(**kwargs):
@@ -30,7 +26,6 @@ def create_app():
             return view(**kwargs)
         return wrapped_view
 
-    # a simple page that says hello
     @app.route('/')
     def home():
         admin = session.get('admin')
@@ -47,9 +42,7 @@ def create_app():
                 app.logger.exception("Template render error")
                 return f"Template render error: {e}", 500
         
-        # POST:
         if not BACKEND_URL:
-            # configuration error
             return render_template("login.html", error="Server misconfigured: BACKEND_URL is missing."), 500
 
         username = request.form.get("username")
@@ -70,10 +63,8 @@ def create_app():
 
         data = resp.json()
 
-        # store token & admin in server-side session
         session["access_token"] = data.get("access_token")
         session["admin"] = data.get("admin")
-        print(data.get("access_token"))
         return redirect(url_for("dashboard"))
 
     @app.route("/logout")
@@ -95,7 +86,6 @@ def create_app():
     @login_required
     def enroll():
         if not BACKEND_URL:
-            # configuration error
             return render_template("login.html", error="Server misconfigured: BACKEND_URL is missing."), 500
 
         first_name = request.form.get("first_name")
@@ -103,7 +93,7 @@ def create_app():
 
         try:
             resp = requests.post(
-                f"{BACKEND_URL}/face/enroll_camera",
+                f"{BACKEND_URL}/attendance/enroll_camera",
                 json={"first_name": first_name, "last_name": last_name},
             )
         except requests.RequestException as e:
