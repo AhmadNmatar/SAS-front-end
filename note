@@ -37,3 +37,63 @@
     </div>
 </div>
 {% endblock %}
+
+label {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+    color: #555;
+    font-weight: bold;
+}
+
+
+  <!-- Attendance table -->
+  <div class="table-wrap">
+    <table aria-label="Attendance table">
+      <thead>
+        <tr>
+          <th scope="col">name</th>
+          <th scope="col">date</th>
+          <th scope="col">status</th>
+        </tr>
+      </thead>
+      <tbody id="att-body">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="control-panel">
+    <button id="start-btn" class="wrap">Start</button>
+    <button id="stop-btn" class="wrap secondary" disabled>Stop</button>
+    <span id="status" class="status"></span>
+  </div>
+
+  <div id="stage">
+    <video id="cam" autoplay muted playsinline></video>
+    <canvas id="overlay"></canvas>
+  </div>
+
+
+  .attendance button {
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    background-color: #4CAF50;
+    width: 25%;
+    font-size: 16px;
+}
+.attendance{
+    padding-top: 70px;
+    max-width:1100px;
+    margin:24px auto;
+    background-color: #fff;
+}
+
+ .a2{  margin-top: 10px; height: 430px; width: 50%;border-color: black;}
+  .a3{ background-color: rgb(239, 234, 234); margin-top: 10px; height: 430px; width: 50%; border-color: black;}
