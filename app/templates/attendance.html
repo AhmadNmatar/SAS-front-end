@@ -3,8 +3,6 @@
 {% block head %}
 <title>Attendance</title>
 <style>
-
-
   .control-panel { display:flex; gap: 10px; align-items:center; margin: 12px 0; }
   .wrap { padding: 10px 16px; border: 0; border-radius: 8px; background:#334; color:#fff; cursor:pointer; }
   .wrap.secondary { background:#666; }
@@ -45,123 +43,9 @@
     <button id="stop-btn" class="wrap secondary" disabled>Stop</button>
     <span id="status" class="status"></span>
 </div>
-<script>
-function populateTable(attendanceList) {
-    const tbody = document.getElementById('att-body');
-    tbody.innerHTML = ''; 
-
-    attendanceList.forEach(record => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.first_name} ${record.last_name}</td>
-            <td>${record.date}</td>
-            <td>${record.status_type}</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-const STREAM_URL = "http://localhost:8000/attendance/take_attendance"; 
-
-const startBtn = document.getElementById('start-btn');
-const stopBtn  = document.getElementById('stop-btn');
-const statusEl = document.getElementById('status');
-
-const stage    = document.getElementById('stage');
-const videoEl  = document.getElementById('cam');
-const canvasEl = document.getElementById('overlay');
-
-let mediaStream = null;
-let captureInterval = null;
-let isStreaming = false;
-
-async function startCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    statusEl.textContent = "Camera not supported in this browser.";
-    return;
-  }
-
-  try {
-    statusEl.textContent = "Requesting camera...";
-    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoEl.srcObject = mediaStream;
-    stage.style.display = 'block';
-
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    statusEl.textContent = "Camera started. Streaming...";
-    isStreaming = true;
-    videoEl.onloadedmetadata = () => {
-      canvasEl.width  = videoEl.videoWidth;
-      canvasEl.height = videoEl.videoHeight;
-      startStreaming();
-    };
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Failed to access camera.";
-  }
-}
-
-function stopCamera() {
-  isStreaming = false;
-  if (captureInterval) {
-    clearInterval(captureInterval);
-    captureInterval = null;
-  }
-
-  if (mediaStream) {
-    mediaStream.getTracks().forEach(track => track.stop());
-    mediaStream = null;
-  }
-
-  videoEl.srcObject = null;
-  stage.style.display = 'none';
-
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-  statusEl.textContent = "Camera stopped.";
-}
-const attendanceList = []
-
-function startStreaming() {
-  const ctx = canvasEl.getContext('2d');
-
-  captureInterval = setInterval(() => {
-    if (!mediaStream || !isStreaming) return;
-
-    ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-
-    canvasEl.toBlob(async (blob) => {
-      if (!blob) return;
-      try {
-       const res =  await fetch(STREAM_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "image/jpeg"
-          },
-          body: blob
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        console.log("resp", data); 
-        if (Object.keys(data.attendance).length != 0){
-          attendanceList.push(data.attendance)
-          populateTable(attendanceList)
-        }
 
 
-      } catch (e) {
-        console.error("Stream error:", e);
-        statusEl.textContent = "Streaming error (check backend).";
-      }
-    }, 'image/jpeg', 0.8);
-  }, 300);
-}
+<script src="{{ url_for('static', filename='attendance.js') }}">
 
-startBtn.addEventListener('click', startCamera);
-stopBtn.addEventListener('click', stopCamera);
 </script>
 {% endblock %}
