@@ -9,7 +9,7 @@
   .wrap:disabled { opacity: .6; cursor: not-allowed; }
   .status { font: 14px/1.4 system-ui, sans-serif; margin-left: 8px; }
 
-  #stage { position: relative; width: 720px; max-width: 100%; margin: 12px 0; display:none; }
+  #stage { position: relative;  width: 640px; max-width: 100%; margin: 12px 0; display:none; }
   #cam, #overlay { width: 100%; display: block; }
   #overlay { position:absolute; left:0; top:0; }
 
@@ -44,8 +44,5 @@
     <span id="status" class="status"></span>
 </div>
 
-
-<script src="{{ url_for('static', filename='attendance.js') }}">
-
-</script>
+<script src="{{ url_for('static', filename='attendance.js') }}"></script>
 {% endblock %}

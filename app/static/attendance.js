@@ -1,6 +1,11 @@
-(() =>{
-const STREAM_URL = "http://localhost:8000/attendance/take_attendance";
-const CAPTURE_INTERVAL = 300;
+(async () =>{
+
+
+const response = await fetch('/api/config');
+const config = await response.json();
+  
+const STREAM_URL = `${config.backend_url}/attendance/take_attendance`;
+const access_token = config.access_token;
 
 const elements = {
   startBtn: document.getElementById('start-btn'),
@@ -46,10 +51,10 @@ async function startCamera() {
     elements.stopBtn.disabled = false;
     updateStatus("Camera started. Streaming...");
     isStreaming = true;
-
     elements.videoEl.onloadedmetadata = () => {
       elements.canvasEl.width = elements.videoEl.videoWidth;
       elements.canvasEl.height = elements.videoEl.videoHeight;
+      console.log(`Camera Resolution: ${elements.canvasEl.width}x${elements.canvasEl.height}`);
       startStreaming();
     };
   } catch (err) {
@@ -81,27 +86,41 @@ function stopCamera() {
 async function sendFrame(blob) {
   const res = await fetch(STREAM_URL, {
     method: "POST",
-    headers: { "Content-Type": "image/jpeg" },
+    headers: { "Content-Type": "image/jpeg",
+        "Authorization": `Bearer ${access_token}`
+     },
     body: blob
   });
 
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return await res.json();
 }
+let isSending = false;
 
 function startStreaming() {
   const ctx = elements.canvasEl.getContext('2d');
 
   captureInterval = setInterval(async () => {
     if (!mediaStream || !isStreaming) return;
+    if (isSending) return;
 
     ctx.drawImage(elements.videoEl, 0, 0, elements.canvasEl.width, elements.canvasEl.height);
+    
+     
+
+    isSending = true;
+    const start = Date.now();
+
 
     elements.canvasEl.toBlob(async (blob) => {
-      if (!blob) return;
+      if (!blob){
+        isSending = false;
+        return;
+      }
+              
       try {
         const data = await sendFrame(blob);
-        console.log("Response:", data);
+
         if (data.attendance && Object.keys(data.attendance).length > 0) {
           attendanceList.push(data.attendance);
           updateTable();
@@ -109,9 +128,14 @@ function startStreaming() {
       } catch (e) {
         console.error("Stream error:", e);
         updateStatus("Streaming error (check backend).");
+      }finally{
+        isSending=false
+
+      const end = Date.now();
+      console.log("Time taken:", end - start, "ms");
       }
-    }, 'image/jpeg', 0.8);
-  }, CAPTURE_INTERVAL);
+    }, 'image/jpeg', 0.7);
+  }, 100);
 }
 
 elements.startBtn.addEventListener('click', startCamera);

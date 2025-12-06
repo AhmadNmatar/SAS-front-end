@@ -25,7 +25,13 @@ def create_app():
                 return redirect(url_for("login"))
             return view(**kwargs)
         return wrapped_view
-
+    
+    @app.route('/api/config')
+    def config():
+        return jsonify({
+            'backend_url': BACKEND_URL,
+            'access_token': session.get("access_token")  
+        })
     @app.route('/')
     def home():
         admin = session.get('admin')
@@ -90,11 +96,12 @@ def create_app():
 
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
-
+        access_token = session.get("access_token")
         try:
             resp = requests.post(
                 f"{BACKEND_URL}/attendance/enroll_camera",
                 json={"first_name": first_name, "last_name": last_name},
+                headers={"Authorization": f"Bearer {access_token}"}
             )
         except requests.RequestException as e:
             return render_template("enrollment.html", message=str(e)), 503
@@ -109,9 +116,6 @@ def create_app():
     @app.route('/attendance')
     @login_required
     def attendance():
-        BACKEND_URL = os.getenv("BACKEND_URL")
-        print(BACKEND_URL)
-        access_token = session.get("access_token")
-        return render_template('attendance.html', backend_url=BACKEND_URL, access_token=access_token)
+        return render_template('attendance.html')
 
     return app
