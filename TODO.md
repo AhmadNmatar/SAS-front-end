@@ -1,3 +1,0 @@
-- [ ] Create app/static/attendance.js with the refactored JavaScript code
-- [ ] Edit app/templates/attendance.html to remove the embedded <script> block and add <script src="{{ url_for('static', filename='attendance.js') }}"></script> before the closing {% endblock %}
-- [ ] Verify the page loads correctly and functionality works
