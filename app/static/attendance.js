@@ -128,14 +128,15 @@ function startStreaming() {
       } catch (e) {
         console.error("Stream error:", e);
         updateStatus("Streaming error (check backend).");
-      }finally{
+      }
+      finally{
         isSending=false
 
       const end = Date.now();
       console.log("Time taken:", end - start, "ms");
       }
     }, 'image/jpeg', 0.7);
-  }, 100);
+  }, 200);
 }
 
 elements.startBtn.addEventListener('click', startCamera);
