@@ -95,26 +95,22 @@ async function sendFrame(blob) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return await res.json();
 }
-let isSending = false;
 
 function startStreaming() {
   const ctx = elements.canvasEl.getContext('2d');
 
   captureInterval = setInterval(async () => {
     if (!mediaStream || !isStreaming) return;
-    if (isSending) return;
 
     ctx.drawImage(elements.videoEl, 0, 0, elements.canvasEl.width, elements.canvasEl.height);
     
      
 
-    isSending = true;
     const start = Date.now();
 
 
     elements.canvasEl.toBlob(async (blob) => {
       if (!blob){
-        isSending = false;
         return;
       }
               
@@ -128,12 +124,6 @@ function startStreaming() {
       } catch (e) {
         console.error("Stream error:", e);
         updateStatus("Streaming error (check backend).");
-      }
-      finally{
-        isSending=false
-
-      const end = Date.now();
-      console.log("Time taken:", end - start, "ms");
       }
     }, 'image/jpeg', 0.7);
   }, 200);
