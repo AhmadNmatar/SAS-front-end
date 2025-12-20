@@ -4,7 +4,7 @@
 const response = await fetch('/api/config');
 const config = await response.json();
   
-const STREAM_URL = `${config.backend_url}/attendance/take_attendance`;
+const BACKEND_URL = `${config.backend_url}`;
 const access_token = config.access_token;
 
 const elements = {
@@ -63,7 +63,7 @@ async function startCamera() {
   }
 }
 
-function stopCamera() {
+async function stopCamera() {
   isStreaming = false;
   if (captureInterval) {
     clearInterval(captureInterval);
@@ -81,10 +81,30 @@ function stopCamera() {
   elements.startBtn.disabled = false;
   elements.stopBtn.disabled = true;
   updateStatus("Camera stopped.");
+  const absentList = await markAbsent();
+
+  if (absentList && absentList.length > 0) {
+    attendanceList.push(...absentList);
+    updateTable();
+  }
 }
 
+async function markAbsent(){
+    const res = await fetch(`${BACKEND_URL}/attendance/absent`, {
+    method: "GET",
+    headers: {
+        "Authorization": `Bearer ${access_token}`
+     }
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.attendance;
+
+  }
+
 async function sendFrame(blob) {
-  const res = await fetch(STREAM_URL, {
+  const res = await fetch(`${BACKEND_URL}/attendance/take_attendance`, {
     method: "POST",
     headers: { "Content-Type": "image/jpeg",
         "Authorization": `Bearer ${access_token}`
@@ -104,10 +124,6 @@ function startStreaming() {
 
     ctx.drawImage(elements.videoEl, 0, 0, elements.canvasEl.width, elements.canvasEl.height);
     
-     
-
-    const start = Date.now();
-
 
     elements.canvasEl.toBlob(async (blob) => {
       if (!blob){
@@ -126,7 +142,7 @@ function startStreaming() {
         updateStatus("Streaming error (check backend).");
       }
     }, 'image/jpeg', 0.7);
-  }, 200);
+  }, 300);
 }
 
 elements.startBtn.addEventListener('click', startCamera);
