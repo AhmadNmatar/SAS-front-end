@@ -182,23 +182,5 @@ This frontend requires a compatible backend API running. Ensure your backend pro
 - Backend URL should be kept confidential
 - Use HTTPS in production environments
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 Support
-
-For support and questions, please open an issue on GitHub or contact the maintainers.
-
----
-
-Made with ❤️ for educational and organizational attendance management
 
